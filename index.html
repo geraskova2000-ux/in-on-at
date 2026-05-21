@@ -511,18 +511,18 @@
 
     function logVisit(name) {
       const now = new Date();
-      const localTime = now.toLocaleString();
-      const isoTime = now.toISOString();
 
-      const url =
-        `${SCRIPT_URL}?name=${encodeURIComponent(name)}` +
-        `&studentName=${encodeURIComponent(name)}` +
-        `&time=${encodeURIComponent(localTime)}` +
-        `&timestamp=${encodeURIComponent(isoTime)}`;
+      const data = new URLSearchParams();
+      data.append("name", name);
+      data.append("game", "in_on_at_quiz");
+      data.append("page", "start");
+      data.append("time", now.toLocaleString());
+      data.append("timestamp", now.toISOString());
 
-      fetch(url, {
-        method: "GET",
-        mode: "no-cors"
+      fetch(SCRIPT_URL, {
+        method: "POST",
+        mode: "no-cors",
+        body: data
       }).catch(() => {});
     }
 
