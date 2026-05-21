@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>In / On / At Quiz</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      min-height: 100vh;
+      background: linear-gradient(135deg, #f6f4ff, #eef8ff, #fff8ef);
+      color: #2e3550;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    .screen {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+
+    .card {
+      width: min(1100px, 100%);
+      background: rgba(255, 255, 255, 0.94);
+      border-radius: 30px;
+      box-shadow: 0 18px 45px rgba(73, 83, 128, 0.15);
+      padding: 32px;
+    }
+
+    .start-card {
+      max-width: 760px;
+      text-align: center;
+      padding: 40px 30px;
+    }
+
+    h1 {
+      margin: 0 0 12px;
+      font-size: clamp(36px, 6vw, 72px);
+      color: #5966b3;
+    }
+
+    .subtitle {
+      font-size: clamp(18px, 2.6vw, 28px);
+      color: #6a7394;
+      margin-bottom: 28px;
+      line-height: 1.4;
+    }
+
+    .name-row {
+      display: flex;
+      gap: 14px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    input {
+      width: min(420px, 100%);
+      padding: 16px 20px;
+      border-radius: 18px;
+      border: 2px solid #cfd7ff;
+      font-size: 24px;
+      text-align: center;
+      outline: none;
+    }
+
+    input:focus {
+      border-color: #8fa0ff;
+      box-shadow: 0 0 0 4px rgba(143, 160, 255, 0.18);
+    }
+
+    button {
+      border: none;
+      cursor: pointer;
+      font-family: inherit;
+      font-weight: 700;
+      transition: 0.15s ease;
+    }
+
+    .main-btn {
+      padding: 16px 28px;
+      border-radius: 18px;
+      font-size: 24px;
+      color: white;
+      background: linear-gradient(135deg, #7d8cff, #9278ff);
+      box-shadow: 0 10px 22px rgba(125, 140, 255, 0.3);
+    }
+
+    .main-btn:hover {
+      transform: translateY(-2px);
+    }
+
+    .top-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-bottom: 22px;
+      justify-content: space-between;
+    }
+
+    .pill {
+      background: #f4f6ff;
+      padding: 12px 18px;
+      border-radius: 999px;
+      font-size: 20px;
+      font-weight: 700;
+      color: #56608f;
+    }
+
+    .quiz-layout {
+      display: grid;
+      grid-template-columns: 360px 1fr;
+      gap: 30px;
+      align-items: stretch;
+    }
+
+    .left-side,
+    .right-side {
+      border-radius: 26px;
+      padding: 24px;
+      min-height: 460px;
+    }
+
+    .left-side {
+      background: linear-gradient(180deg, #eef2ff, #f8f4ff);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 20px;
+    }
+
+    .right-side {
+      background: linear-gradient(180deg, #fffaf1, #eef9ff);
+      border: 3px dashed #cfd7ff;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+    }
+
+    .side-label {
+      font-size: 18px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: #8a93b2;
+      margin-bottom: 8px;
+    }
+
+    .answer-btn {
+      width: 100%;
+      min-height: 95px;
+      border-radius: 24px;
+      font-size: clamp(38px, 5vw, 60px);
+      background: white;
+      color: #44507e;
+      border: 4px solid transparent;
+      box-shadow: 0 10px 20px rgba(87, 97, 145, 0.12);
+    }
+
+    .answer-btn:hover:not(:disabled) {
+      transform: translateY(-2px);
+      background: #f8faff;
+    }
+
+    .answer-btn:disabled {
+      cursor: default;
+    }
+
+    .answer-btn.correct {
+      background: #dff7e2;
+      border-color: #48b85c;
+      color: #207237;
+    }
+
+    .answer-btn.wrong {
+      background: #ffe0e0;
+      border-color: #eb5a5a;
+      color: #8d2b2b;
+    }
+
+    .tail-text {
+      font-size: clamp(42px, 6vw, 76px);
+      font-weight: 800;
+      color: #2d3555;
+      line-height: 1.15;
+      margin: 18px 0 24px;
+    }
+
+    .feedback {
+      min-height: 48px;
+      font-size: clamp(22px, 3vw, 34px);
+      font-weight: 800;
+      color: #5c67a2;
+      margin-bottom: 10px;
+    }
+
+    .full-phrase {
+      min-height: 48px;
+      font-size: clamp(24px, 3vw, 38px);
+      font-weight: 800;
+      color: #6b56d9;
+    }
+
+    .end-card {
+      max-width: 760px;
+      text-align: center;
+      padding: 40px 30px;
+    }
+
+    .score-big {
+      font-size: clamp(44px, 7vw, 88px);
+      font-weight: 800;
+      color: #5966b3;
+      margin: 20px 0;
+    }
+
+    .small-note {
+      margin-top: 16px;
+      color: #8890ad;
+      font-size: 15px;
+    }
+
+    @media (max-width: 860px) {
+      .quiz-layout {
+        grid-template-columns: 1fr;
+      }
+
+      .left-side,
+      .right-side {
+        min-height: auto;
+      }
+
+      .left-side {
+        order: 2;
+      }
+
+      .right-side {
+        order: 1;
+      }
+    }
+  </style>
+</head>
+<body>
+  <section id="startScreen" class="screen">
+    <div class="card start-card">
+      <h1>in / on / at</h1>
+      <div class="subtitle">
+        Enter your name and choose the correct preposition.
+      </div>
+
+      <div class="name-row">
+        <input id="nameInput" type="text" placeholder="Your name" />
+        <button id="startBtn" class="main-btn">Start</button>
+      </div>
+
+      <div class="small-note">
+        Your name and login time will be recorded.
+      </div>
+    </div>
+  </section>
+
+  <section id="quizScreen" class="screen hidden">
+    <div class="card">
+      <div class="top-bar">
+        <div class="pill">Student: <span id="studentNameLabel"></span></div>
+        <div class="pill">Question: <span id="progressLabel">1 / 26</span></div>
+        <div class="pill">Score: <span id="scoreLabel">0</span></div>
+      </div>
+
+      <div class="quiz-layout">
+        <div class="left-side">
+          <div class="side-label">Choose the preposition</div>
+          <button class="answer-btn" data-answer="in">in</button>
+          <button class="answer-btn" data-answer="on">on</button>
+          <button class="answer-btn" data-answer="at">at</button>
+        </div>
+
+        <div class="right-side">
+          <div class="side-label">Complete the phrase</div>
+          <div id="tailText" class="tail-text">prison</div>
+          <div id="feedback" class="feedback"></div>
+          <div id="fullPhrase" class="full-phrase"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="endScreen" class="screen hidden">
+    <div class="card end-card">
+      <h1>Well done!</h1>
+      <div class="subtitle">You have finished the quiz.</div>
+      <div id="finalScore" class="score-big"></div>
+      <button id="restartBtn" class="main-btn">Play again</button>
+    </div>
+  </section>
+
+  <script>
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbze5szpz0ury7t9AzXgypraI0bqWnb_beGCryE4gfIZTJ8y7giHTQP54U3Mqy6PtOh-Cg/exec";
+
+    const phrases = [
+      { prep: "in", tail: "prison" },
+      { prep: "on", tail: "the plane" },
+      { prep: "at", tail: "home" },
+      { prep: "in", tail: "the park" },
+      { prep: "on", tail: "the floor" },
+      { prep: "at", tail: "eight o’clock" },
+      { prep: "in", tail: "my car" },
+      { prep: "on", tail: "the table" },
+      { prep: "in", tail: "the kitchen" },
+      { prep: "at", tail: "school" },
+      { prep: "on", tail: "a train" },
+      { prep: "in", tail: "the evening" },
+      { prep: "on", tail: "the street" },
+      { prep: "in", tail: "the bathroom" },
+      { prep: "at", tail: "work" },
+      { prep: "in", tail: "the bedroom" },
+      { prep: "in", tail: "bed" },
+      { prep: "on", tail: "the wall" },
+      { prep: "in", tail: "a restaurant" },
+      { prep: "at", tail: "the airport" },
+      { prep: "on", tail: "a bus" },
+      { prep: "in", tail: "the afternoon" },
+      { prep: "in", tail: "Moscow" },
+      { prep: "in", tail: "the morning" },
+      { prep: "in", tail: "the living room" },
+      { prep: "on", tail: "the sofa" }
+    ];
+
+    const startScreen = document.getElementById("startScreen");
+    const quizScreen = document.getElementById("quizScreen");
+    const endScreen = document.getElementById("endScreen");
+
+    const nameInput = document.getElementById("nameInput");
+    const startBtn = document.getElementById("startBtn");
+    const restartBtn = document.getElementById("restartBtn");
+
+    const studentNameLabel = document.getElementById("studentNameLabel");
+    const progressLabel = document.getElementById("progressLabel");
+    const scoreLabel = document.getElementById("scoreLabel");
+    const tailText = document.getElementById("tailText");
+    const feedback = document.getElementById("feedback");
+    const fullPhrase = document.getElementById("fullPhrase");
+    const finalScore = document.getElementById("finalScore");
+
+    const answerButtons = [...document.querySelectorAll(".answer-btn")];
+
+    let studentName = "";
+    let quizData = [];
+    let currentIndex = 0;
+    let score = 0;
+    let locked = false;
+
+    function shuffle(array) {
+      const arr = [...array];
+      for (let i = arr.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+      }
+      return arr;
+    }
+
+    function showScreen(screen) {
+      startScreen.classList.add("hidden");
+      quizScreen.classList.add("hidden");
+      endScreen.classList.add("hidden");
+      screen.classList.remove("hidden");
+    }
+
+    function resetButtonStyles() {
+      answerButtons.forEach(btn => {
+        btn.classList.remove("correct", "wrong");
+        btn.disabled = false;
+      });
+    }
+
+    function updateTopBar() {
+      progressLabel.textContent = `${currentIndex + 1} / ${quizData.length}`;
+      scoreLabel.textContent = score;
+      studentNameLabel.textContent = studentName;
+    }
+
+    function loadQuestion() {
+      if (currentIndex >= quizData.length) {
+        finishQuiz();
+        return;
+      }
+
+      locked = false;
+      resetButtonStyles();
+      feedback.textContent = "";
+      fullPhrase.textContent = "";
+
+      const item = quizData[currentIndex];
+      tailText.textContent = item.tail;
+      updateTopBar();
+    }
+
+    function finishQuiz() {
+      showScreen(endScreen);
+      finalScore.textContent = `${score} / ${quizData.length}`;
+      speakText(`Well done, ${studentName}. Your score is ${score} out of ${quizData.length}.`);
+    }
+
+    function playTone(type) {
+      const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+      if (!AudioContextClass) return;
+
+      const ctx = new AudioContextClass();
+      const oscillator = ctx.createOscillator();
+      const gain = ctx.createGain();
+
+      oscillator.connect(gain);
+      gain.connect(ctx.destination);
+
+      const now = ctx.currentTime;
+
+      if (type === "success") {
+        oscillator.type = "sine";
+        oscillator.frequency.setValueAtTime(523.25, now);
+        oscillator.frequency.setValueAtTime(659.25, now + 0.12);
+        oscillator.frequency.setValueAtTime(783.99, now + 0.24);
+
+        gain.gain.setValueAtTime(0.001, now);
+        gain.gain.exponentialRampToValueAtTime(0.12, now + 0.02);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.45);
+
+        oscillator.start(now);
+        oscillator.stop(now + 0.46);
+      } else {
+        oscillator.type = "square";
+        oscillator.frequency.setValueAtTime(260, now);
+        oscillator.frequency.setValueAtTime(180, now + 0.16);
+
+        gain.gain.setValueAtTime(0.001, now);
+        gain.gain.exponentialRampToValueAtTime(0.1, now + 0.02);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.38);
+
+        oscillator.start(now);
+        oscillator.stop(now + 0.39);
+      }
+
+      oscillator.onended = () => ctx.close();
+    }
+
+    function getEnglishVoice() {
+      const voices = speechSynthesis.getVoices();
+      return voices.find(v => v.lang && v.lang.toLowerCase().startsWith("en")) || null;
+    }
+
+    function speakText(text) {
+      if (!("speechSynthesis" in window)) return;
+
+      window.speechSynthesis.cancel();
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.lang = "en-US";
+      utterance.rate = 0.9;
+      utterance.pitch = 1;
+      const voice = getEnglishVoice();
+      if (voice) utterance.voice = voice;
+      window.speechSynthesis.speak(utterance);
+    }
+
+    function answerClick(event) {
+      if (locked) return;
+      locked = true;
+
+      const selectedBtn = event.currentTarget;
+      const selectedAnswer = selectedBtn.dataset.answer;
+      const item = quizData[currentIndex];
+      const correctAnswer = item.prep;
+      const correctPhrase = `${item.prep} ${item.tail}`;
+
+      answerButtons.forEach(btn => btn.disabled = true);
+
+      fullPhrase.textContent = correctPhrase;
+
+      if (selectedAnswer === correctAnswer) {
+        selectedBtn.classList.add("correct");
+        feedback.textContent = "Great!";
+        score++;
+        scoreLabel.textContent = score;
+        playTone("success");
+      } else {
+        selectedBtn.classList.add("wrong");
+        const correctBtn = answerButtons.find(btn => btn.dataset.answer === correctAnswer);
+        if (correctBtn) correctBtn.classList.add("correct");
+        feedback.textContent = "Oops!";
+        playTone("error");
+      }
+
+      setTimeout(() => {
+        speakText(correctPhrase);
+      }, 120);
+
+      setTimeout(() => {
+        currentIndex++;
+        loadQuestion();
+      }, 1000);
+    }
+
+    function logVisit(name) {
+      const now = new Date();
+      const localTime = now.toLocaleString();
+      const isoTime = now.toISOString();
+
+      const url =
+        `${SCRIPT_URL}?name=${encodeURIComponent(name)}` +
+        `&studentName=${encodeURIComponent(name)}` +
+        `&time=${encodeURIComponent(localTime)}` +
+        `&timestamp=${encodeURIComponent(isoTime)}`;
+
+      fetch(url, {
+        method: "GET",
+        mode: "no-cors"
+      }).catch(() => {});
+    }
+
+    function startGame() {
+      const name = nameInput.value.trim();
+      if (!name) {
+        alert("Please enter your name.");
+        return;
+      }
+
+      studentName = name;
+      currentIndex = 0;
+      score = 0;
+      quizData = shuffle(phrases);
+
+      logVisit(studentName);
+      showScreen(quizScreen);
+      loadQuestion();
+    }
+
+    function restartGame() {
+      showScreen(startScreen);
+      nameInput.value = studentName;
+    }
+
+    startBtn.addEventListener("click", startGame);
+    restartBtn.addEventListener("click", restartGame);
+
+    nameInput.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") startGame();
+    });
+
+    answerButtons.forEach(btn => {
+      btn.addEventListener("click", answerClick);
+    });
+
+    speechSynthesis.onvoiceschanged = () => {};
+  </script>
+</body>
+</html>
